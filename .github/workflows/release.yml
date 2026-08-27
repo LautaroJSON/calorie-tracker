@@ -1,0 +1,83 @@
+name: Release APK
+
+# Builds an Android APK with EAS Build and attaches it to a GitHub Release.
+#
+# One-time setup before this can run:
+#   1. Create an Expo account (https://expo.dev) — free.
+#   2. Create an access token: Expo dashboard -> Account settings -> Access tokens.
+#   3. Add it to this repo: Settings -> Secrets and variables -> Actions -> New repository secret
+#      Name: EXPO_TOKEN
+#   4. Link the project once (writes expo.extra.eas.projectId into app.json — commit it):
+#        npx eas-cli login
+#        npx eas-cli init
+#
+# Then publish a release by pushing a tag:
+#        git tag v1.0.0 && git push origin v1.0.0
+# ...or run this workflow manually from the Actions tab.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag for the release (e.g. v1.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build APK and publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve version tag
+        id: version
+        run: echo "tag=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure EAS project is linked
+        run: |
+          if node -e "process.exit(require('./app.json').expo.extra?.eas?.projectId ? 0 : 1)"; then
+            echo "EAS projectId already set in app.json."
+          else
+            echo "No projectId in app.json — running 'eas init'."
+            eas init --non-interactive
+          fi
+
+      - name: Build Android APK
+        run: |
+          mkdir -p build
+          eas build \
+            --platform android \
+            --profile preview \
+            --non-interactive \
+            --wait \
+            --output "build/calorie-tracker-${{ steps.version.outputs.tag }}.apk"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+          files: build/calorie-tracker-${{ steps.version.outputs.tag }}.apk

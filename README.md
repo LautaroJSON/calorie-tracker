@@ -40,6 +40,31 @@ npx tsc --noEmit    # type-check
 npx expo lint       # lint
 ```
 
+## Building an Android APK
+
+APKs are built with [EAS Build](https://docs.expo.dev/build/introduction/) (`eas.json`,
+`preview` profile) and published to this repo's **Releases**.
+
+One-time setup:
+
+1. Create a free Expo account and an access token (Expo dashboard → Account settings → Access
+   tokens).
+2. Add it as a repo secret named `EXPO_TOKEN` (Settings → Secrets and variables → Actions).
+3. Link the project once and commit the generated `projectId`:
+   ```bash
+   npx eas-cli login
+   npx eas-cli init
+   ```
+
+Then cut a release by pushing a tag (CI builds the APK and attaches it to the GitHub Release):
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+To build locally instead: `npx eas-cli build -p android --profile preview`.
+
 ## Project layout
 
 ```
