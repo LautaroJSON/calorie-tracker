@@ -67,15 +67,25 @@ jobs:
             eas init --non-interactive
           fi
 
-      - name: Build Android APK
+      - name: Build Android APK on EAS
+        id: eas
         run: |
-          mkdir -p build
           eas build \
             --platform android \
             --profile preview \
             --non-interactive \
             --wait \
-            --output "build/calorie-tracker-${{ steps.version.outputs.tag }}.apk"
+            --json > eas-build.json
+          url=$(jq -r '.[0].artifacts.applicationArchiveUrl // .[0].artifacts.buildUrl' eas-build.json)
+          echo "Artifact URL: $url"
+          test -n "$url" && test "$url" != "null"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Download APK
+        run: |
+          mkdir -p build
+          curl -fL --retry 3 -o "build/calorie-tracker-${{ steps.version.outputs.tag }}.apk" "${{ steps.eas.outputs.url }}"
+          file "build/calorie-tracker-${{ steps.version.outputs.tag }}.apk"
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
