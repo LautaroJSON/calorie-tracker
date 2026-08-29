@@ -24,7 +24,8 @@ opening it in Expo Go with a single command.
 - TypeScript throughout
 - React Native `StyleSheet` only (a claymorphism-inspired theme in `lib/theme.ts`) — no styling
   libraries
-- Pure, unit-tested logic in `lib/calculations` and `lib/datetime` (Jest / `jest-expo`)
+- Pure, unit-tested logic in `lib/calculations` and `lib/datetime`, plus component and
+  storage-integration tests with React Native Testing Library (Jest / `jest-expo`)
 
 ## Running locally
 
@@ -38,10 +39,15 @@ Then open the project in **Expo Go** (scan the QR code) or press `w` for the web
 ## Tests / checks
 
 ```bash
-npm test            # jest
+npm test            # jest — pure logic, component render, and storage-integration tests
 npx tsc --noEmit    # type-check
 npx expo lint       # lint
 ```
+
+Component/integration tests live in `components/__tests__/` and `__tests__/integration/`; they
+render components with [React Native Testing Library](https://callstack.github.io/react-native-testing-library/)
+against an in-memory `AsyncStorage` mock (`jest.setup.js`). The v14 API is async — use
+`await render(...)` / `await fireEvent.press(...)`.
 
 ## Building an Android APK
 
