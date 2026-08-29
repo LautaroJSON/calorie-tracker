@@ -67,18 +67,12 @@ export function SwipeableRow({ children, onSwipeLeft, onSwipeRight }: SwipeableR
 
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={[styles.background, styles.deleteBackground, deletePanelStyle]}
-        pointerEvents="none"
-      >
+      <Animated.View style={[styles.background, styles.deleteBackground, deletePanelStyle]}>
         <Animated.View style={deleteIconStyle}>
           <Trash2 size={22} color={colors.surface} />
         </Animated.View>
       </Animated.View>
-      <Animated.View
-        style={[styles.background, styles.editBackground, editPanelStyle]}
-        pointerEvents="none"
-      >
+      <Animated.View style={[styles.background, styles.editBackground, editPanelStyle]}>
         <Animated.View style={editIconStyle}>
           <Pencil size={22} color={colors.surface} />
         </Animated.View>
@@ -105,6 +99,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: spacing.lg,
+    pointerEvents: "none", // the drag panels are decorative; taps go to the row
   },
   deleteBackground: {
     backgroundColor: colors.danger,

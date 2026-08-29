@@ -33,24 +33,17 @@ export const radius = {
   full: 999,
 } as const;
 
-// A single soft directional shadow stands in for claymorphism's puffy dual-shadow look —
-// React Native has no built-in inset/multi-shadow support without a third-party library,
-// which the project constitution rules out. `raised` surfaces read as popped off the
-// tinted canvas; flat/sunken surfaces (inputs, unselected pills) simply omit it.
+// A single soft directional shadow stands in for claymorphism's puffy dual-shadow look.
+// Uses the cross-platform `boxShadow` style prop (React Native 0.76+, New Architecture) —
+// one value that renders on both iOS and Android, replacing the deprecated `shadow*` props
+// and `elevation`. `raised` surfaces read as popped off the tinted canvas; flat/sunken
+// surfaces (inputs, unselected pills) simply omit it. Colour is #3B5BA9 (rgb 59,91,169).
 export const shadow = {
   raised: {
-    shadowColor: "#3B5BA9",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.18,
-    shadowRadius: 16,
-    elevation: 6,
+    boxShadow: "0px 8px 16px rgba(59, 91, 169, 0.18)",
   },
   raisedSm: {
-    shadowColor: "#3B5BA9",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 3,
+    boxShadow: "0px 4px 8px rgba(59, 91, 169, 0.15)",
   },
 } as const;
 
