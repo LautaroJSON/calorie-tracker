@@ -8,8 +8,10 @@ opening it in Expo Go with a single command.
 
 - **Profile-based daily target** — enter weight, height, age, sex, activity level and weight
   goal; the app computes a daily calorie goal (BMR × activity multiplier ± goal adjustment).
-- **Log food and exercise** — quick entry form with calories, an optional note, and an optional
-  12-hour time (hour / minute / AM–PM), defaulting to now.
+- **Log food and exercise** — quick entry form with calories, an optional title, an optional
+  note, and an optional 12-hour time (hour / minute / AM–PM), defaulting to now.
+- **Entry list** — tap a row to expand it (note, date, AM/PM time); swipe a row right to
+  delete, left to edit.
 - **Today view** — a calorie ring showing net calories against the daily goal.
 - **Optional water tracker** — turn on a "water counter" in the profile, set a daily goal in
   millilitres (default 2000), and log intake in 50 ml taps from a vertical gauge beside the

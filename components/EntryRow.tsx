@@ -1,73 +1,72 @@
+import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Pencil, Trash2 } from "lucide-react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
-import { claySquish, colors, radius, shadow, spacing, typography } from "../lib/theme";
+import { formatClockTime, formatLongDate, localDateOf } from "../lib/datetime";
+import { colors, radius, shadow, spacing, typography } from "../lib/theme";
 import type { EntryType } from "../lib/types";
 
 interface EntryRowProps {
   type: EntryType;
   calories: number;
+  title?: string;
   note?: string;
   createdAt: string;
-  onEdit?: () => void;
-  onDelete?: () => void;
 }
 
-function formatTime(iso: string): string {
-  const date = new Date(iso);
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-}
-
-export function EntryRow({ type, calories, note, createdAt, onEdit, onDelete }: EntryRowProps) {
+export function EntryRow({ type, calories, title, note, createdAt }: EntryRowProps) {
+  const [expanded, setExpanded] = useState(false);
   const sign = type === "food" ? "+" : "-";
+  const label = title || (type === "food" ? "Food" : "Exercise");
 
   return (
-    <View style={styles.row}>
-      <View style={styles.info}>
-        <Text style={typography.body}>{note || (type === "food" ? "Food" : "Exercise")}</Text>
-        <Text style={styles.time}>{formatTime(createdAt)}</Text>
-      </View>
-      <Text style={[styles.calories, type === "exercise" && { color: colors.success }]}>
-        {sign}
-        {calories} kcal
-      </Text>
-      {(onEdit || onDelete) && (
-        <View style={styles.actions}>
-          {onEdit && (
-            <Pressable
-              accessibilityLabel="Edit entry"
-              onPress={onEdit}
-              style={({ pressed }) => [styles.actionButton, claySquish(pressed)]}
-            >
-              <Pencil size={16} color={colors.textSecondary} />
-            </Pressable>
-          )}
-          {onDelete && (
-            <Pressable
-              accessibilityLabel="Delete entry"
-              onPress={onDelete}
-              style={({ pressed }) => [styles.actionButton, claySquish(pressed)]}
-            >
-              <Trash2 size={16} color={colors.danger} />
-            </Pressable>
-          )}
+    <Pressable
+      style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+      onPress={() => setExpanded((open) => !open)}
+    >
+      <View style={styles.summary}>
+        <View style={styles.info}>
+          <Text style={typography.body}>{label}</Text>
+          <Text style={styles.time}>{formatClockTime(createdAt)}</Text>
         </View>
+        <Text style={[styles.calories, type === "exercise" && { color: colors.success }]}>
+          {sign}
+          {calories} kcal
+        </Text>
+      </View>
+
+      {expanded && (
+        <Animated.View
+          entering={FadeIn.duration(120)}
+          exiting={FadeOut.duration(90)}
+          style={styles.details}
+        >
+          {note ? <Text style={styles.note}>{note}</Text> : null}
+          <Text style={styles.meta}>
+            {formatLongDate(localDateOf(createdAt))} · {formatClockTime(createdAt)}
+          </Text>
+        </Animated.View>
       )}
-    </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
     marginBottom: spacing.sm,
-    gap: spacing.sm,
     ...shadow.raisedSm,
+  },
+  rowPressed: {
+    opacity: 0.7,
+  },
+  summary: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
   },
   info: {
     flex: 1,
@@ -79,13 +78,15 @@ const styles = StyleSheet.create({
   calories: {
     ...typography.subtitle,
   },
-  actions: {
-    flexDirection: "row",
+  details: {
+    marginTop: spacing.sm,
     gap: spacing.xs,
   },
-  actionButton: {
-    padding: spacing.xs,
-    borderRadius: radius.full,
-    backgroundColor: colors.background,
+  note: {
+    ...typography.caption,
+    color: colors.textSecondary,
+  },
+  meta: {
+    ...typography.caption,
   },
 });

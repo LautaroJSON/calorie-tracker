@@ -69,6 +69,22 @@ export function clockFieldsFromIso(iso: string): ClockFields {
   return clockFieldsFromDate(new Date(iso));
 }
 
+/** Formats an ISO timestamp as a 12-hour local time with an AM/PM suffix, e.g. "7:05 AM". */
+export function formatClockTime(iso: string): string {
+  const { hour12, minute, meridiem } = clockFieldsFromIso(iso);
+  return `${hour12}:${pad2(minute)} ${meridiem}`;
+}
+
+/**
+ * The local calendar day of an ISO timestamp as "YYYY-MM-DD" — built from local `Date` parts
+ * (not a slice of the UTC string) so it names the day the local wall-clock time falls on.
+ * Feeds `formatLongDate`.
+ */
+export function localDateOf(iso: string): string {
+  const date = new Date(iso);
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
 /**
  * Composes a stored `createdAt` timestamp from a "YYYY-MM-DD" day and a 24-hour time,
  * built from local `Date` components so it round-trips with `clockFieldsFromIso`.

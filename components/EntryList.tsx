@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { Card } from "./Card";
 import { EntryRow } from "./EntryRow";
+import { SwipeableRow } from "./SwipeableRow";
 import { colors, typography } from "../lib/theme";
 import type { DayLog, EntryType } from "../lib/types";
 
@@ -43,15 +44,19 @@ export function EntryList({
   return (
     <View>
       {items.map((item) => (
-        <EntryRow
+        <SwipeableRow
           key={item.id}
-          type={item.type}
-          calories={item.calories}
-          note={item.note}
-          createdAt={item.createdAt}
-          onEdit={onEdit ? () => onEdit(item) : undefined}
-          onDelete={onDelete ? () => onDelete(item) : undefined}
-        />
+          onSwipeLeft={onEdit ? () => onEdit(item) : () => {}}
+          onSwipeRight={onDelete ? () => onDelete(item) : () => {}}
+        >
+          <EntryRow
+            type={item.type}
+            calories={item.calories}
+            title={item.title}
+            note={item.note}
+            createdAt={item.createdAt}
+          />
+        </SwipeableRow>
       ))}
     </View>
   );

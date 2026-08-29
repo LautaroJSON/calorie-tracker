@@ -2,8 +2,10 @@ import {
   clockFieldsFromDate,
   clockFieldsFromIso,
   combineDateAndTime,
+  formatClockTime,
   formatLongDate,
   HOUR_OPTIONS,
+  localDateOf,
   MINUTE_OPTIONS,
   to24Hour,
 } from "../datetime";
@@ -91,6 +93,35 @@ describe("clockFieldsFromDate / clockFieldsFromIso", () => {
       const iso = combineDateAndTime("2026-08-27", hours, minutes);
       expect(clockFieldsFromIso(iso)).toEqual({ hour12, minute, meridiem });
     }
+  });
+});
+
+describe("formatClockTime", () => {
+  it("formats a local timestamp as H:MM AM/PM", () => {
+    expect(formatClockTime(new Date(2026, 2, 5, 7, 5).toISOString())).toBe("7:05 AM");
+    expect(formatClockTime(new Date(2026, 2, 5, 13, 9).toISOString())).toBe("1:09 PM");
+    expect(formatClockTime(new Date(2026, 2, 5, 23, 59).toISOString())).toBe("11:59 PM");
+  });
+
+  it("handles midnight and noon", () => {
+    expect(formatClockTime(new Date(2026, 2, 5, 0, 0).toISOString())).toBe("12:00 AM");
+    expect(formatClockTime(new Date(2026, 2, 5, 12, 30).toISOString())).toBe("12:30 PM");
+  });
+
+  it("does not zero-pad the hour but zero-pads the minute", () => {
+    expect(formatClockTime(new Date(2026, 2, 5, 9, 3).toISOString())).toBe("9:03 AM");
+  });
+});
+
+describe("localDateOf", () => {
+  it("returns the local calendar day as YYYY-MM-DD", () => {
+    expect(localDateOf(new Date(2026, 2, 5, 23, 30).toISOString())).toBe("2026-03-05");
+    expect(localDateOf(new Date(2026, 2, 5, 0, 30).toISOString())).toBe("2026-03-05");
+  });
+
+  it("feeds formatLongDate", () => {
+    const iso = new Date(2026, 7, 27, 8, 0).toISOString();
+    expect(formatLongDate(localDateOf(iso))).toBe("27 - August - 2026");
   });
 });
 

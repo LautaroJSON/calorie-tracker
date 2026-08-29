@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { LoadingSpinner } from "../components/LoadingPlaceholder";
 import { ProfileGateProvider, useProfileGate } from "../lib/profileGate";
@@ -32,8 +33,10 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <ProfileGateProvider>
-      <RootNavigator />
-    </ProfileGateProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ProfileGateProvider>
+        <RootNavigator />
+      </ProfileGateProvider>
+    </GestureHandlerRootView>
   );
 }
