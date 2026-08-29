@@ -1,7 +1,7 @@
 {
   "name": "calorie-tracker",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.2.2",
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~57.0.16",
