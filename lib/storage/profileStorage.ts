@@ -11,6 +11,8 @@ export async function loadProfile(): Promise<UserProfile | null> {
   return {
     activityLevel: "sedentary",
     goal: "maintain",
+    waterTrackingEnabled: false,
+    waterGoalMl: 2000,
     ...JSON.parse(raw),
   } as UserProfile;
 }

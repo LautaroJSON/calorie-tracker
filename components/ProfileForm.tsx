@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
 
 import { Card } from "./Card";
 import { FormTextInput } from "./FormTextInput";
@@ -14,6 +14,8 @@ export interface ProfileFormValues {
   sex: Sex;
   activityLevel: ActivityLevel;
   goal: Goal;
+  waterTrackingEnabled: boolean;
+  waterGoalMl: number;
 }
 
 interface ProfileFormProps {
@@ -108,6 +110,12 @@ export function ProfileForm({ initialValues, submitLabel, onSubmit }: ProfileFor
     initialValues?.activityLevel ?? "sedentary"
   );
   const [goal, setGoal] = useState<Goal>(initialValues?.goal ?? "maintain");
+  const [waterTrackingEnabled, setWaterTrackingEnabled] = useState(
+    initialValues?.waterTrackingEnabled ?? false
+  );
+  const [waterGoalMl, setWaterGoalMl] = useState(
+    String(initialValues?.waterGoalMl ?? 2000)
+  );
   const [error, setError] = useState<string | null>(null);
 
   function handleSubmit() {
@@ -128,6 +136,15 @@ export function ProfileForm({ initialValues, submitLabel, onSubmit }: ProfileFor
       return;
     }
 
+    const parsedWaterGoal = Number(waterGoalMl);
+    if (
+      waterTrackingEnabled &&
+      (!waterGoalMl || !Number.isInteger(parsedWaterGoal) || parsedWaterGoal <= 0)
+    ) {
+      setError("Enter a water goal greater than 0.");
+      return;
+    }
+
     setError(null);
     onSubmit({
       weightKg: parsedWeight,
@@ -136,6 +153,9 @@ export function ProfileForm({ initialValues, submitLabel, onSubmit }: ProfileFor
       sex,
       activityLevel,
       goal,
+      waterTrackingEnabled,
+      // Kept even when tracking is off, so re-enabling restores the last goal.
+      waterGoalMl: Number.isInteger(parsedWaterGoal) && parsedWaterGoal > 0 ? parsedWaterGoal : 2000,
     });
   }
 
@@ -192,6 +212,29 @@ export function ProfileForm({ initialValues, submitLabel, onSubmit }: ProfileFor
         <OptionRow options={GOAL_OPTIONS} value={goal} onChange={setGoal} />
       </View>
 
+      <View style={styles.field}>
+        <View style={styles.waterToggleRow}>
+          <Text style={styles.label}>Water counter</Text>
+          <Switch
+            value={waterTrackingEnabled}
+            onValueChange={setWaterTrackingEnabled}
+            trackColor={{ true: colors.primary, false: colors.border }}
+            thumbColor={colors.surface}
+          />
+        </View>
+        {waterTrackingEnabled && (
+          <View style={styles.field}>
+            <Text style={styles.label}>Daily goal (ml)</Text>
+            <FormTextInput
+              keyboardType="numeric"
+              value={waterGoalMl}
+              onChangeText={setWaterGoalMl}
+              placeholder="2000"
+            />
+          </View>
+        )}
+      </View>
+
       {error && <Text style={styles.error}>{error}</Text>}
 
       <Pressable
@@ -215,6 +258,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xs,
+  },
+  waterToggleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   label: {
     ...typography.label,

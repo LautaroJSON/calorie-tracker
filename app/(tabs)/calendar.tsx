@@ -4,13 +4,13 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Plus } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { CalorieRing } from "../../components/CalorieRing";
 import { DayCalendar } from "../../components/DayCalendar";
+import { DayOverview } from "../../components/DayOverview";
 import { EntryList, type EntryListItem } from "../../components/EntryList";
 import { calculateDailyCalorieGoal } from "../../lib/calculations/calorieGoal";
 import { computeGoalStatus, computeNetCalories } from "../../lib/calculations/netCalories";
 import { confirmDestructive } from "../../lib/confirm";
-import { deleteEntry, loadDayLog } from "../../lib/storage/dayStorage";
+import { deleteEntry, loadDayLog, setDayWaterMl } from "../../lib/storage/dayStorage";
 import { todayIsoDate } from "../../lib/storage/keys";
 import { loadProfile } from "../../lib/storage/profileStorage";
 import { claySquish, colors, radius, shadow, spacing, typography } from "../../lib/theme";
@@ -56,6 +56,10 @@ export default function CalendarScreen() {
     });
   }
 
+  function handleWaterChange(nextMl: number) {
+    setDayWaterMl(selectedDate, nextMl).then(setDayLog);
+  }
+
   const dailyGoal = profile ? Math.round(calculateDailyCalorieGoal(profile)) : 0;
   const totals = dayLog
     ? computeNetCalories(dayLog)
@@ -72,12 +76,21 @@ export default function CalendarScreen() {
 
         {profile && dayLog && (
           <>
-            <CalorieRing
+            <DayOverview
               netCalories={totals.netCalories}
               dailyGoal={dailyGoal}
               isOverGoal={isOverGoal}
               overageAmount={Math.round(overageAmount)}
               uncompensatedExcess={totals.uncompensatedExcess}
+              water={
+                profile.waterTrackingEnabled
+                  ? {
+                      waterMl: dayLog.waterMl,
+                      goalMl: profile.waterGoalMl,
+                      onChange: handleWaterChange,
+                    }
+                  : null
+              }
             />
             <EntryList
               dayLog={dayLog}

@@ -9,6 +9,8 @@ function profileWith(overrides: Partial<UserProfile>): UserProfile {
     sex: "male",
     activityLevel: "sedentary",
     goal: "maintain",
+    waterTrackingEnabled: false,
+    waterGoalMl: 2000,
     updatedAt: "",
     ...overrides,
   };

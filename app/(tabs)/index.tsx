@@ -1,19 +1,33 @@
-import { useCallback, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Plus } from "lucide-react-native";
+import { useCallback, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { CalorieRing } from "../../components/CalorieRing";
+import { DayOverview } from "../../components/DayOverview";
 import { EntryList, type EntryListItem } from "../../components/EntryList";
 import { LoadingSpinner } from "../../components/LoadingPlaceholder";
 import { calculateDailyCalorieGoal } from "../../lib/calculations/calorieGoal";
-import { computeGoalStatus, computeNetCalories } from "../../lib/calculations/netCalories";
+import {
+  computeGoalStatus,
+  computeNetCalories,
+} from "../../lib/calculations/netCalories";
 import { confirmDestructive } from "../../lib/confirm";
-import { deleteEntry, loadDayLog } from "../../lib/storage/dayStorage";
+import {
+  deleteEntry,
+  loadDayLog,
+  setDayWaterMl,
+} from "../../lib/storage/dayStorage";
 import { todayIsoDate } from "../../lib/storage/keys";
 import { loadProfile } from "../../lib/storage/profileStorage";
-import { claySquish, colors, radius, shadow, spacing, typography } from "../../lib/theme";
+import {
+  claySquish,
+  colors,
+  radius,
+  shadow,
+  spacing,
+  typography,
+} from "../../lib/theme";
 import type { DayLog, UserProfile } from "../../lib/types";
 
 export default function TodayScreen() {
@@ -54,10 +68,18 @@ export default function TodayScreen() {
   }
 
   function handleDelete(item: EntryListItem) {
-    confirmDestructive("Delete entry", "Are you sure you want to delete this entry?", async () => {
-      await deleteEntry(today, item.type, item.id);
-      reload();
-    });
+    confirmDestructive(
+      "Delete entry",
+      "Are you sure you want to delete this entry?",
+      async () => {
+        await deleteEntry(today, item.type, item.id);
+        reload();
+      },
+    );
+  }
+
+  function handleWaterChange(nextMl: number) {
+    setDayWaterMl(today, nextMl).then(setDayLog);
   }
 
   if (!profile || !dayLog) {
@@ -65,22 +87,35 @@ export default function TodayScreen() {
   }
 
   const dailyGoal = Math.round(calculateDailyCalorieGoal(profile));
-  const { totalFoodCalories, totalExerciseCalories, netCalories, uncompensatedExcess } =
-    computeNetCalories(dayLog);
+  const {
+    totalFoodCalories,
+    totalExerciseCalories,
+    netCalories,
+    uncompensatedExcess,
+  } = computeNetCalories(dayLog);
   const { isOverGoal, overageAmount } = computeGoalStatus(
     totalFoodCalories - totalExerciseCalories,
-    dailyGoal
+    dailyGoal,
   );
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
       <ScrollView contentContainerStyle={styles.container}>
-        <CalorieRing
+        <DayOverview
           netCalories={netCalories}
           dailyGoal={dailyGoal}
           isOverGoal={isOverGoal}
           overageAmount={Math.round(overageAmount)}
           uncompensatedExcess={uncompensatedExcess}
+          water={
+            profile.waterTrackingEnabled
+              ? {
+                  waterMl: dayLog.waterMl,
+                  goalMl: profile.waterGoalMl,
+                  onChange: handleWaterChange,
+                }
+              : null
+          }
         />
         <EntryList
           dayLog={dayLog}
@@ -145,7 +180,7 @@ const styles = StyleSheet.create({
     right: spacing.lg,
     bottom: spacing.lg + 68,
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     overflow: "hidden",
     ...shadow.raised,
   },

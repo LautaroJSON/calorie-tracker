@@ -4,7 +4,7 @@ import { DAY_KEY_PREFIX, dateFromDayKey, dayKey } from "./keys";
 import type { DayLog, EntryType, ExerciseEntry, FoodEntry } from "../types";
 
 function emptyDayLog(date: string): DayLog {
-  return { date, foodEntries: [], exerciseEntries: [] };
+  return { date, foodEntries: [], exerciseEntries: [], waterMl: 0 };
 }
 
 function generateId(): string {
@@ -16,7 +16,8 @@ export async function loadDayLog(date: string): Promise<DayLog> {
   if (!raw) {
     return emptyDayLog(date);
   }
-  return JSON.parse(raw) as DayLog;
+  // `waterMl` defaults to 0 for days stored before the water tracker existed.
+  return { waterMl: 0, ...JSON.parse(raw) } as DayLog;
 }
 
 export async function saveDayLog(date: string, log: DayLog): Promise<void> {
@@ -94,6 +95,13 @@ export async function deleteEntry(
       ? { ...log, foodEntries: log.foodEntries.filter((entry) => entry.id !== id) }
       : { ...log, exerciseEntries: log.exerciseEntries.filter((entry) => entry.id !== id) };
 
+  await saveDayLog(date, updated);
+  return updated;
+}
+
+export async function setDayWaterMl(date: string, waterMl: number): Promise<DayLog> {
+  const log = await loadDayLog(date);
+  const updated: DayLog = { ...log, waterMl: Math.max(0, Math.round(waterMl)) };
   await saveDayLog(date, updated);
   return updated;
 }
