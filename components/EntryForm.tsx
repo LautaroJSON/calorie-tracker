@@ -17,6 +17,7 @@ import { claySquish, colors, radius, shadow, spacing, typography } from "../lib/
 
 export interface EntryFormValues {
   calories: number;
+  title?: string;
   note?: string;
   createdAt: string;
 }
@@ -25,6 +26,7 @@ interface EntryFormProps {
   targetDate: string;
   initialValues?: {
     calories: number;
+    title?: string;
     note?: string;
     createdAt?: string;
   };
@@ -38,6 +40,7 @@ export function EntryForm({ targetDate, initialValues, submitLabel, onSubmit }: 
   const [calories, setCalories] = useState(
     initialValues ? String(initialValues.calories) : ""
   );
+  const [title, setTitle] = useState(initialValues?.title ?? "");
   const [note, setNote] = useState(initialValues?.note ?? "");
 
   const initialClock = initialValues?.createdAt
@@ -61,7 +64,12 @@ export function EntryForm({ targetDate, initialValues, submitLabel, onSubmit }: 
     const { hours, minutes } = to24Hour(Number(hour), Number(minute), meridiem);
     const createdAt = combineDateAndTime(targetDate, hours, minutes);
 
-    onSubmit({ calories: parsedCalories, note: note.trim() || undefined, createdAt });
+    onSubmit({
+      calories: parsedCalories,
+      title: title.trim() || undefined,
+      note: note.trim() || undefined,
+      createdAt,
+    });
   }
 
   return (
@@ -78,11 +86,20 @@ export function EntryForm({ targetDate, initialValues, submitLabel, onSubmit }: 
       </View>
 
       <View style={styles.field}>
+        <Text style={typography.label}>Title (optional)</Text>
+        <FormTextInput
+          value={title}
+          onChangeText={setTitle}
+          placeholder="e.g. Breakfast"
+        />
+      </View>
+
+      <View style={styles.field}>
         <Text style={typography.label}>Note (optional)</Text>
         <FormTextInput
           value={note}
           onChangeText={setNote}
-          placeholder="e.g. Lunch"
+          placeholder="e.g. scrambled eggs and toast"
         />
       </View>
 

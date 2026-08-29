@@ -26,6 +26,7 @@ export async function saveDayLog(date: string, log: DayLog): Promise<void> {
 
 export interface EntryInput {
   calories: number;
+  title?: string;
   note?: string;
   createdAt?: string;
 }
@@ -43,6 +44,7 @@ export async function addEntry(
   const entry: FoodEntry | ExerciseEntry = {
     id: generateId(),
     calories: input.calories,
+    title: input.title,
     note: input.note,
     createdAt: input.createdAt ?? new Date().toISOString(),
   };
@@ -69,6 +71,7 @@ export async function updateEntry(
         ? {
             ...entry,
             calories: input.calories,
+            title: input.title,
             note: input.note,
             ...(input.createdAt ? { createdAt: input.createdAt } : {}),
           }

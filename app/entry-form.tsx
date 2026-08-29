@@ -40,7 +40,12 @@ export default function EntryFormScreen() {
         submitLabel={isEdit ? "Save changes" : "Add entry"}
         initialValues={
           isEdit
-            ? { calories: Number(raw.calories ?? 0), note: raw.note, createdAt: raw.createdAt }
+            ? {
+                calories: Number(raw.calories ?? 0),
+                title: raw.title,
+                note: raw.note,
+                createdAt: raw.createdAt,
+              }
             : undefined
         }
         onSubmit={handleSubmit}

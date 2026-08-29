@@ -21,6 +21,8 @@ export interface UserProfile {
 export interface FoodEntry {
   id: string;
   calories: number;
+  // Short label shown on the entry row. Optional; absent on entries saved before it existed.
+  title?: string;
   note?: string;
   createdAt: string;
 }
@@ -28,6 +30,7 @@ export interface FoodEntry {
 export interface ExerciseEntry {
   id: string;
   calories: number;
+  title?: string;
   note?: string;
   createdAt: string;
 }

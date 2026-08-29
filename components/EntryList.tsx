@@ -9,6 +9,7 @@ export interface EntryListItem {
   type: EntryType;
   id: string;
   calories: number;
+  title?: string;
   note?: string;
   createdAt: string;
 }

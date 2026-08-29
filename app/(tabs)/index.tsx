@@ -55,6 +55,7 @@ export default function TodayScreen() {
           ? {
               entryId: item.id,
               calories: String(item.calories),
+              title: item.title ?? "",
               note: item.note ?? "",
               createdAt: item.createdAt,
             }
